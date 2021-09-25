@@ -1,16 +1,11 @@
-<!-- <div class="row">
-    <div class="col-md-5">
-        <button class="btn btn-success">New Contact</button>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-        </div>
-    </div>
-</div> -->
-
 <div class="panel panel-default">
-    <div class="panel-heading">Contacts
-        <a href=# class="btn btn-success">New Contact</a>
+    <div class="panel-heading clearfix">
+        <div class="row">
+            <div class="col-md-6" style="font-size: 24px;">Contacts</div>
+            <div class="col-md-6">
+                <a href=# class="btn btn-success pull-right" role="button">New Contact</a>
+            </div>
+        </div>
     </div>
     <div class="panel-body">
         <a href="#" class="list-group-item clearfix" *ngFor="let contact of contacts">
