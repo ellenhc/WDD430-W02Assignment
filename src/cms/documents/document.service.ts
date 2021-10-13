@@ -19,9 +19,9 @@ export class DocumentService {
   }
 
   getDocument(id: string): Document{
-    for(let document in this.documents){
-      if(this.documents[id]== id){
-        return this.documents[document];
+    for (let document of this.documents) {
+      if (document.id == id) {
+        return document;
       }
     }
     return null;

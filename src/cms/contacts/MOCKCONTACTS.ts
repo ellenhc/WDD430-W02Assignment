@@ -275,6 +275,15 @@ export const MOCKCONTACTS: Contact[] = [
       phone: '208-496-3774',
       imageUrl: '../../assets/images/rigbys.jpg',
       group: null
+    },
+    // index 18
+    {
+      id: '101',
+      name: 'Ellen Carlson',
+      email: 'how19034@byui.edu',
+      phone: '123-456-7890',
+      imageUrl: '../../assets/images/armstrongb.jpg',
+      group: null
     }
   ]
   }
