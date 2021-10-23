@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Document } from '../document.model';
 import { DocumentService } from '../document.service';
 
@@ -12,7 +12,8 @@ export class DocumentDetailComponent implements OnInit {
   document: Document;
   id: string;
 
-  constructor(private documentService: DocumentService,
+  constructor(private documentService: DocumentService, 
+    private router: Router,
     private route: ActivatedRoute) { }
 
   ngOnInit() {
