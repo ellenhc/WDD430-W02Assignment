@@ -26,4 +26,8 @@ export class DocumentService {
     }
     return null;
   }
+
+  // getDocument(id: string){
+  //   return this.documents[id];
+  // }
 }
