@@ -37,4 +37,10 @@ export class DocumentDetailComponent implements OnInit {
       this.nativeWindow.open(this.document.url);
     }
   }
+
+  onDelete() {
+    this.documentService.deleteDocument(this.document);
+    // route back to /documents url
+    this.router.navigateByUrl('/documents');
+  }
 }
