@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Document } from './document.model';
 import {MOCKDOCUMENTS} from './MOCKDOCUMENTS';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +9,9 @@ import {MOCKDOCUMENTS} from './MOCKDOCUMENTS';
 export class DocumentService {
   documents: Document[];
 
+  documentListChangedEvent =  new Subject<Document[]>();
+
   documentSelectedEvent = new EventEmitter<Document>();
-  documentChangedEvent = new EventEmitter<Document[]>();
 
   constructor() { 
     this.documents = MOCKDOCUMENTS;
@@ -28,10 +30,6 @@ export class DocumentService {
     return null;
   }
 
-  // getDocument(id: string){
-  //   return this.documents[id];
-  // }
-
   deleteDocument(document: Document){
     if(!document){
       return;
@@ -41,6 +39,6 @@ export class DocumentService {
       return;
     }
     this.documents.splice(pos, 1);
-    this.documentChangedEvent.emit(this.documents.slice());
+    this.documentListChangedEvent.next(this.documents.slice());
   }
 }
