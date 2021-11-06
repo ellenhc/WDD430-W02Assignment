@@ -6,6 +6,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./document-edit.component.css']
 })
 export class DocumentEditComponent implements OnInit {
+  originalDocument: Document; //  origianl, unedited version
+  document: Document; // edited version of the document
+  editMode: boolean = false; // indicates whether an existing doc is being edited, or a new one is being created
 
   constructor() { }
 
@@ -13,4 +16,6 @@ export class DocumentEditComponent implements OnInit {
   }
 
   onCancel(){}
+
+  onSubmit(f){}
 }
