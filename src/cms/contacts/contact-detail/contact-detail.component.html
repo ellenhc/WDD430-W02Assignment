@@ -10,5 +10,9 @@
     <div class="panel-body">
         <p><b>Email:</b> {{ contact.email }}</p>
         <p><b>Phone:</b> {{ contact.phone }}</p>
+        <cms-contact-item 
+            *ngFor="let contactElement of contact.group"
+            [contact]="contactElement">
+        </cms-contact-item>
     </div>
 </div>
