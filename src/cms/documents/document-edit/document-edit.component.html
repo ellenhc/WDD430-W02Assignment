@@ -5,25 +5,25 @@
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label for="name">Document Title:</label>
-                    <input type="text" id="name" class="form-control" size="120" max="120" ngModel name="title" required #title="ngModel">
+                    <input type="text" id="name" class="form-control" size="120" max="120" [ngModel]="document?.name" name="name" required #name="ngModel">
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label for="description">Document Description:</label>
-                    <input type="text" id="description" class="form-control" size="120" max="255" ngModel name="description">
+                    <input type="text" id="description" class="form-control" size="120" max="255" [ngModel]="document?.description" name="description">
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label for="url">Document URL:</label>
-                    <input type="text" id="url" class="form-control" size="150" max="255" ngModel name="url" required #url="ngModel">
+                    <input type="text" id="url" class="form-control" size="150" max="255" [ngModel]="document?.url" name="url" required #url="ngModel">
                 </div>
             </div>
 
-            <div *ngIf="(!title.valid) || (!url.valid)" class="alert alert-danger">The Document Title and Document URL are required fields.</div>
+            <div *ngIf="(!name.valid) || (!url.valid)" class="alert alert-danger">The Document Title and Document URL are required fields.</div>
 
             <div class="row">
                 <div class="col-xs-12 btn-toolbar">
