@@ -2,16 +2,21 @@
     <div class="panel-heading clearfix">
         <div class="row">
             <div class="col-md-6" style="font-size: 24px;">Contacts</div>
-            <div class="col-md-6">
-                <a routerLink="new" class="btn btn-success pull-right" role="button">New Contact</a>
+        </div>
+        <div class="row col-md-12">
+            <div class="input-group pull-left col-xs-7">
+                <input type="text" #searchBox (keyup)=" search(searchBox.value)" class="form-control"
+                    placeholder="Enter a search value">
+                <div class="glyphicon glyphicon-search input-group-addon" (click)="search(searchBox.value)"></div>
+            </div>
+            <div class="pull-right">
+                <a routerLink="new" class="btn btn-success" role="button">New Contact</a>
             </div>
         </div>
     </div>
     <div class="panel-body">
-        <cms-contact-item 
-            *ngFor="let contactElement of contacts"
-            [contact]="contactElement"
-            dnd-draggable [dragEnabled]="true" [dragData]="contactElement" [dropZones]="['contactGroup']">
+        <cms-contact-item *ngFor="let contactElement of contacts | contactsFilter:term" [contact]="contactElement" dnd-draggable
+            [dragEnabled]="true" [dragData]="contactElement" [dropZones]="['contactGroup']">
         </cms-contact-item>
     </div>
-  </div>
+</div>
