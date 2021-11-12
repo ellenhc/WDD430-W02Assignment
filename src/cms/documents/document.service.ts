@@ -7,7 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class DocumentService {
-  documents: Document[] =[];
+  documents: Document[] = [];
 
   documentListChangedEvent = new Subject<Document[]>();
 
@@ -39,7 +39,7 @@ export class DocumentService {
         (error: any) => {
           console.log(error);
         });
-        return this.documents;
+    return this.documents;
   }
 
   getDocument(id: string): Document {
@@ -60,8 +60,7 @@ export class DocumentService {
       return;
     }
     this.documents.splice(pos, 1);
-    let documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    //this.documentListChangedEvent.next(this.documents.slice());
   }
 
   getMaxId(): number {
@@ -83,8 +82,8 @@ export class DocumentService {
     this.maxDocumentId++;
     newDocument.id = this.maxDocumentId.toString();
     this.documents.push(newDocument);
-    let documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    //this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments();
   }
 
   updateDocument(originalDocument: Document, newDocument: Document) {
@@ -97,7 +96,22 @@ export class DocumentService {
     }
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
-    let documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    //this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments();
+  }
+
+  storeDocuments() {
+    // convert documents array to string format
+    const stringDocs = JSON.stringify(this.documents);
+
+    //create HttpHeaders object & set content-type to application/json
+    const headers = new HttpHeaders().set('content-type', 'application/json');
+
+    // call put() to send document list to database
+    this.http.put('https://ehccms-76c34-default-rtdb.firebaseio.com/documents.json', stringDocs, { headers })
+      .subscribe(data => {
+        //emits documentListChnagedEvent & pass cloned copy of doc array
+        this.documentListChangedEvent.next(this.documents.slice());
+      });
   }
 }
