@@ -14,6 +14,7 @@ export class MessageService {
 
   constructor(private http: HttpClient) {
     this.messages = this.getMessages();
+    this.maxMessageId = this.getMaxId();
   }
 
   getMessages(): Message[] {
@@ -48,6 +49,7 @@ export class MessageService {
 
   getMaxId(): number {
     let maxId = 0;
+    if (this.messages == undefined) return 0;
     for (let message of this.messages) {
       let currentId: number = parseInt(message.id);
 
