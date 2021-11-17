@@ -6,10 +6,11 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-// import the routing file to handle the default (index) route
-const index = require('./server/routes/app');
-
-// ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ... 
+// Get defined routing files
+const index = require('./server/routes/app'); // import the routing file to handle the default (index) route
+const messageRoutes = require('./server/routes/messages');
+const contactRoutes = require('./server/routes/contacts');
+const documentRoutes = require('./server/routes/documents');
 
 const app = express(); // create an instance of express
 
@@ -42,11 +43,14 @@ app.use(express.static(path.join(__dirname, 'dist/cms')));
 
 // Tell express to map the default route ('/') to the index route
 app.use('/', index);
+app.use('/messages', messageRoutes);
+app.use('/contacts', contactRoutes);
+app.use('/documents', documentRoutes);
 
 // ... ADD YOUR CODE TO MAP YOUR URL'S TO ROUTING FILES HERE ...
 app.use((req, res, next) => {
     res.render("index");
-    //next(); do i need this here??
+    //next(); //do i need this here??? I added this
 })
 
 // Tell express to map all other non-defined routes back to the index page
