@@ -5,6 +5,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 
 // Get defined routing files
 const index = require('./server/routes/app'); // import the routing file to handle the default (index) route
@@ -47,7 +48,18 @@ app.use('/messages', messageRoutes);
 app.use('/contacts', contactRoutes);
 app.use('/documents', documentRoutes);
 
-// ... ADD YOUR CODE TO MAP YOUR URL'S TO ROUTING FILES HERE ...
+// establish a connection to the mongo database
+mongoose.connect('mongodb://localhost:27017/cms',
+   { useNewUrlParser: true }, (err, res) => {
+      if (err) {
+         console.log('Connection failed: ' + err);
+      }
+      else {
+         console.log('Connected to database!');
+      }
+   }
+);
+
 app.use((req, res, next) => {
     res.render("index");
     //next(); //do i need this here??? I added this
