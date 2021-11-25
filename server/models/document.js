@@ -5,7 +5,7 @@ const documentSchema = mongoose.Schema({
     name: { type: String },
     url: { type: String },
     //children is an array of child docs that are related
-    children: [{type: Document}]
- });
- 
- module.exports = mongoose.model('Document', documentSchema);
+    children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }]
+});
+
+module.exports = mongoose.model('Document', documentSchema);
