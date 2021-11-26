@@ -16,30 +16,35 @@ export class DocumentService {
   maxDocumentId: number;
 
   constructor(private http: HttpClient) {
-    this.documents = this.getDocuments();
+    this.fetchDocuments();
     this.maxDocumentId = this.getMaxId();
   }
 
-  getDocuments(): Document[] {
-    this.http.get('https://ehccms-76c34-default-rtdb.firebaseio.com/documents.json')
+  getDocuments() {
+    return this.documents.slice();
+  }
+
+  fetchDocuments() {
+    const self = this;
+    this.http.get('http://localhost:3000/documents')
       .subscribe(
         // success method
         (documents: Document[]) => {
-          this.documents = documents;
-          this.maxDocumentId = this.getMaxId();
+          self.documents = documents['documents'];
+          self.maxDocumentId = self.getMaxId();
           //sort the list of documents
-          this.documents.sort((a, b) => {
+          self.documents.sort((a, b) => {
             if (a.id > b.id) { return 1 }
             else if (a.id < b.id) { return -1 }
             else { return 0 }
           })
           //emit the next document list change event
-          this.documentListChangedEvent.next(this.documents.slice());
+          self.documentListChangedEvent.next(self.documents.slice());
         }, // error method
         (error: any) => {
           console.log(error);
         });
-    return this.documents;
+    return;
   }
 
   getDocument(id: string): Document {
@@ -55,16 +60,27 @@ export class DocumentService {
     if (!document) {
       return;
     }
-    const pos = this.documents.indexOf(document);
+
+    //const pos = this.documents.indexOf(document);
+    const pos = this.documents.findIndex(d => d.id === document.id);
     if (pos < 0) {
       return;
     }
-    this.documents.splice(pos, 1);
-    //this.documentListChangedEvent.next(this.documents.slice());
+
+    // delete from database
+    this.http.delete('http://localhost:3000/documents/' + document.id)
+      .subscribe(
+        (response: Response) => {
+          this.documents.splice(pos, 1);
+          this.storeDocuments();
+        }
+      );
   }
 
   getMaxId(): number {
     let maxId = 0;
+    console.log(this.documents);
+    if (!this.documents) return 0;
     for (let document of this.documents) {
       let currentId: number = parseInt(document.id);
 
@@ -75,15 +91,28 @@ export class DocumentService {
     return maxId;
   }
 
-  addDocument(newDocument: Document) {
-    if (!newDocument) {
+  addDocument(document: Document) {
+    if (!document) {
       return;
     }
-    this.maxDocumentId++;
-    newDocument.id = this.maxDocumentId.toString();
-    this.documents.push(newDocument);
-    //this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments();
+
+    // make sure id of the new Document is empty
+    document.id = '';
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    // add to database
+    this.http.post<{ message: string, document: Document }>
+      ('http://localhost:3000/documents',
+        document,
+        { headers: headers })
+      .subscribe(
+        (responseData) => {
+          //add new document to documents
+          this.documents.push(responseData.document);
+          //this.sortAndSend();
+          this.storeDocuments();
+        });
   }
 
   updateDocument(originalDocument: Document, newDocument: Document) {
@@ -94,24 +123,37 @@ export class DocumentService {
     if (pos < 0) {
       return;
     }
+
+    // set the id of the new Document to the id of the old Document
     newDocument.id = originalDocument.id;
-    this.documents[pos] = newDocument;
-    //this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments();
+    //newDocument._id = originalDocument._id;
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    // update database
+    this.http.put('http://localhost:3000/documents/' + originalDocument.id,
+      newDocument, { headers: headers })
+      .subscribe(
+        (response: Response) => {
+          this.documents[pos] = newDocument;
+          this.storeDocuments();
+        }
+      );
   }
 
   storeDocuments() {
-    // convert documents array to string format
-    const stringDocs = JSON.stringify(this.documents);
+    this.documentListChangedEvent.next(this.documents.slice());
+    // // convert documents array to string format
+    // const stringDocs = JSON.stringify(this.documents);
 
-    //create HttpHeaders object & set content-type to application/json
-    const headers = new HttpHeaders().set('content-type', 'application/json');
+    // //create HttpHeaders object & set content-type to application/json
+    // const headers = new HttpHeaders().set('content-type', 'application/json');
 
-    // call put() to send document list to database
-    this.http.put('https://ehccms-76c34-default-rtdb.firebaseio.com/documents.json', stringDocs, { headers })
-      .subscribe(data => {
-        //emits documentListChnagedEvent & pass cloned copy of doc array
-        this.documentListChangedEvent.next(this.documents.slice());
-      });
+    // // call put() to send document list to database
+    // this.http.put('https://ehccms-76c34-default-rtdb.firebaseio.com/documents.json', stringDocs, { headers })
+    //   .subscribe(data => {
+    //     //emits documentListChnagedEvent & pass cloned copy of doc array
+    //     this.documentListChangedEvent.next(this.documents.slice());
+    //   });
   }
 }

@@ -22,7 +22,7 @@ export class MessageEditComponent implements OnInit {
 
   onSendMessage(){
     this.messageService.addMessage({
-      id:'10',
+      id: null,
       //id: this.messageService.getMaxId().toString(),
       subject: this.subject.nativeElement.value,
       msgText: this.msgText.nativeElement.value,

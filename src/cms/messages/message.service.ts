@@ -1,28 +1,33 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Message } from './message.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { stringify } from 'querystring';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
-  messages: Message[];
+  messages: Message[] = [];
 
   messageChangedEvent = new EventEmitter<Message[]>();
 
-  maxMessageId : number;
+  maxMessageId: number;
 
   constructor(private http: HttpClient) {
-    this.messages = this.getMessages();
+    this.fetchMessages();
     this.maxMessageId = this.getMaxId();
   }
 
-  getMessages(): Message[] {
-    this.http.get('https://ehccms-76c34-default-rtdb.firebaseio.com/messages.json')
+  getMessages() {
+    return this.messages.slice();
+  }
+
+  fetchMessages() {
+    this.http.get('http://localhost:3000/messages')
       .subscribe(
         // success method
         (messages: Message[]) => {
-          this.messages = messages;
+          this.messages = messages['messages'];
           this.maxMessageId = this.getMaxId();
 
           this.messages.sort((a, b) => {
@@ -35,7 +40,7 @@ export class MessageService {
         (error: any) => {
           console.log(error);
         });
-    return this.messages;
+    return;
   }
 
   getMessage(id: string): Message {
@@ -60,23 +65,90 @@ export class MessageService {
     return maxId;
   }
 
-  addMessage(message: Message) {
-    this.maxMessageId++;
-    message.id = this.maxMessageId.toString();
-    this.messages.push(message);
-    //this.messageChangedEvent.emit(this.messages.slice());
-    this.storeMessages();
+  addMessage(newMessage: Message) {
+    if (!newMessage) {
+      return;
+    }
+
+    // make sure id of the new Message is empty
+    newMessage.id = '';
+
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+    // add to database
+    this.http.post<{message: string, newMessage: Message}>
+    ('http://localhost:3000/messages',
+    newMessage,
+    {headers: headers})
+    .subscribe(
+      (responseData) => {
+        this.messages.push(responseData.newMessage);
+        this.storeMessages();
+      }
+    );
   }
 
-  storeMessages(){
-    const stringMessages = JSON.stringify(this.messages);
-    
-    const headers = new HttpHeaders().set('content-type', 'application/json');
+  
+updateMessage(originalMessage: Message, newMessage: Message) {
+  if (!originalMessage || !newMessage) {
+    return;
+  }
 
-    this.http.put('https://ehccms-76c34-default-rtdb.firebaseio.com/messages.json', stringMessages, { headers })
-      .subscribe(data => {
-        //emits documentListChnagedEvent & pass cloned copy of doc array
-        this.messageChangedEvent.next(this.messages.slice());
-      });
+  const pos = this.messages.findIndex(d => d.id === originalMessage.id);
+
+  if (pos < 0) {
+    return;
+  }
+
+  // set the id of the new Document to the id of the old Document
+  newMessage.id = originalMessage.id;
+  //newMessage._id = originalMessage._id;
+
+  const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+  // update database
+  this.http.put('http://localhost:3000/messages/' + originalMessage.id,
+  newMessage, { headers: headers })
+    .subscribe(
+      (response: Response) => {
+        this.messages[pos] = newMessage;
+        this.storeMessages();
+      }
+    );
+}
+
+deleteMessage(message: Message) {
+
+  if (!message) {
+    return;
+  }
+
+  const pos = this.messages.findIndex(d => d.id === message.id);
+
+  if (pos < 0) {
+    return;
+  }
+
+  // delete from database
+  this.http.delete('http://localhost:3000/messages/' + message.id)
+    .subscribe(
+      (response: Response) => {
+        this.messages.splice(pos, 1);
+        this.storeMessages();
+      }
+    );
+}
+
+  storeMessages() {
+    this.messageChangedEvent.next(this.messages.slice());
+    // const stringMessages = JSON.stringify(this.messages);
+
+    // const headers = new HttpHeaders().set('content-type', 'application/json');
+
+    // this.http.put('https://ehccms-76c34-default-rtdb.firebaseio.com/messages.json', stringMessages, { headers })
+    //   .subscribe(data => {
+    //     //emits documentListChnagedEvent & pass cloned copy of doc array
+    //     this.messageChangedEvent.next(this.messages.slice());
+    //   });
   }
 }

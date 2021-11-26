@@ -1,35 +1,36 @@
 const express = require('express');
 const sequenceGenerator = require('./sequenceGenerator');
 const Document = require('../models/document');
-const { error } = require('console');
 
 const router = express.Router();
 
 // Get list of documents
 router.get('/', (req, res, next) => {
-    // call the Document model find() to get all documents
-    const documents = Document.find();
-    if (error) {
+    Document.find()
+    .then(documents => {
+        res.status(200).json({
+            message: 'Retrieved documents successfully',
+            documents: documents
+        });
+    })
+    .catch(error => {
         res.status(500).json({
             message: 'An error occurred',
             error: error
         });
-    }
-    res.status(200).json({
-        // return a JSON object containing list of documents
-        message: 'Retrieved documents successfully',
-        documents: documents
     });
-})
+});
 
 // Create new document
 router.post('/', (req, res, next) => {
+    console.log(req);
     const maxDocumentId = sequenceGenerator.nextId("documents");
     const document = new Document({
-        id: req.body.id,
+        id: maxDocumentId,
         name: req.body.name,
         description: req.body.description,
-        url: req.body.url
+        url: req.body.url,
+        children: req.body.children
     });
     document.save()
         .then(createdDocument => {
@@ -47,7 +48,7 @@ router.post('/', (req, res, next) => {
 });
 
 // Update existing document
-router.put('/', (req, res, next) => {
+router.put('/:id', (req, res, next) => {
     Document.findOne({ id: req.params.id })
         .then(document => {
             document.name = req.body.name;
@@ -76,7 +77,7 @@ router.put('/', (req, res, next) => {
 });
 
 // Delete document
-router.delete('/', (req, res, next) => {
+router.delete('/:id', (req, res, next) => {
     Document.findOne({ id: req.params.id })
         .then(document => {
             Document.deleteOne({ id: req.params.id })

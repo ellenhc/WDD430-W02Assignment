@@ -6,24 +6,26 @@ const router = express.Router();
 
 // Get list of messages
 router.get('/', (req, res, next) => {
-    const mesages = Message.find();
-    if (error) {
-        res.status(500).json({
-            message: 'An error occurred',
-            error: error
+    Message.find()
+        .then(messages => {
+            res.status(200).json({
+                message: 'Retrieved messages successfully',
+                messages: messages
+            });
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: 'An error occurred',
+                error: error
+            });
         });
-    }
-    res.status(200).json({
-        message: 'Retrieved messages successfully',
-        messages: messages
-    });
-})
+});
 
 // Create new message
 router.post('/', (req, res, next) => {
     const maxMessageId = sequenceGenerator.nextId("messages");
     const message = new Message({
-        id: req.body.id,
+        id: maxMessageId,
         subject: req.body.subject,
         msgText: req.body.msgText,
         sender: req.body.sender
@@ -32,7 +34,7 @@ router.post('/', (req, res, next) => {
         .then(createdMessage => {
             res.status(201).json({
                 message: 'Message added successfully',
-                message: createdMessage
+                newMessage: createdMessage
             });
         })
         .catch(error => {
@@ -44,7 +46,7 @@ router.post('/', (req, res, next) => {
 });
 
 // Update existing message
-router.put('/', (req, res, next) => {
+router.put('/:id', (req, res, next) => {
     Message.findOne({ id: req.params.id })
         .then(message => {
             message.subject = req.body.subject;
@@ -73,7 +75,7 @@ router.put('/', (req, res, next) => {
 });
 
 // Delete message
-router.delete('/', (req, res, next) => {
+router.delete('/:id', (req, res, next) => {
     Message.findOne({ id: req.params.id })
         .then(message => {
             Message.deleteOne({ id: req.params.id })
@@ -97,4 +99,4 @@ router.delete('/', (req, res, next) => {
         });
 });
 
-module.exports = router; 
+module.exports = router;

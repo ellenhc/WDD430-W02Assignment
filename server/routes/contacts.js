@@ -26,7 +26,7 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
     const maxContactId = sequenceGenerator.nextId("contacts");
     const contact = new Contact({
-        id: req.body.id,
+        id: maxContactId,
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
@@ -49,7 +49,7 @@ router.post('/', (req, res, next) => {
 });
 
 // Update existing contact
-router.put('/', (req, res, next) => {
+router.put('/:id', (req, res, next) => {
     Contact.findOne({ id: req.params.id })
         .then(contact => {
             contact.name = req.body.name;
@@ -80,7 +80,7 @@ router.put('/', (req, res, next) => {
 });
 
 // Delete contact
-router.delete('/', (req, res, next) => {
+router.delete('/:id', (req, res, next) => {
     Contact.findOne({ id: req.params.id })
         .then(contact => {
             Contact.deleteOne({ id: req.params.id })

@@ -17,7 +17,8 @@ export class MessageItemComponent implements OnInit {
 
   ngOnInit() {
     const contact: Contact = this.contactService.getContact(this.message.sender);
-    this.messageSender = contact.name;
+    if (contact == null || contact.name == undefined) this.messageSender = "N/A";
+    else this.messageSender = contact.name;
   }
 
 }
